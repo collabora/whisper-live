@@ -1,0 +1,6 @@
+datasets
+transformers[torch]
+librosa
+evaluate
+jiwer
+gradio
