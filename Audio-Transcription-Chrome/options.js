@@ -80,7 +80,7 @@ async function startRecord(option) {
       window.close();
     };
 
-    const socket = new WebSocket("ws://localhost:9090/");
+    const socket = new WebSocket(`ws://${option.host}:${option.port}/`);
     let isServerReady = false;
     socket.onopen = function(e) { 
       socket.send("handshake");

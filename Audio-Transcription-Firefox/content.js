@@ -1,4 +1,3 @@
-console.log("Content script injected.");
 let socket = null;
 let isCapturing = false;
 let mediaStream = null;
@@ -39,8 +38,8 @@ function resampleTo16kHZ(audioData, origSampleRate = 44100) {
   return resampledData;
 }
 
-function startRecording() {
-    socket = new WebSocket("ws://localhost:9090/");
+function startRecording(host, port) {
+    socket = new WebSocket(`ws://${host}:${port}/`);
     socket.onopen = function(e) { 
       socket.send("handshake");
     };
@@ -210,7 +209,7 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   const { action, data } = request;
   if (action === "startCapture") {
       isCapturing = true;
-      startRecording();
+      startRecording(data.host, data.port);
   } else if (action === "stopCapture") {
     
     isCapturing = false;

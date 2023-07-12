@@ -3,6 +3,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const startButton = document.getElementById("startCapture");
   const stopButton = document.getElementById("stopCapture");
 
+  const useServerCheckbox = document.getElementById("useServerCheckbox");
+
   // Add click event listeners to the buttons
   startButton.addEventListener("click", startCapture);
   stopButton.addEventListener("click", stopCapture);
@@ -13,6 +15,13 @@ document.addEventListener("DOMContentLoaded", function () {
       toggleCaptureButtons(true);
     } else {
       toggleCaptureButtons(false);
+    }
+  });
+
+  // Retrieve checkbox state from storage on popup open
+  chrome.storage.local.get("useServerState", ({ useServerState }) => {
+    if (useServerState !== undefined) {
+      useServerCheckbox.checked = useServerState;
     }
   });
 
@@ -27,7 +36,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const currentTab = await getCurrentTab();
 
     // Send a message to the background script to start capturing
-    chrome.runtime.sendMessage({ action: "startCapture", tabId: currentTab.id }, () => {
+    let host = "localhost";
+    let port = "9090";
+    const useCollaboraServer = useServerCheckbox.checked;
+    if (useCollaboraServer){
+      host = "transcription.kurg.org"
+      port = "7090"
+    }
+
+    chrome.runtime.sendMessage(
+      { 
+        action: "startCapture", 
+        tabId: currentTab.id,
+        host: host,
+        port: port }, () => {
       // Update capturing state in storage and toggle the buttons
       chrome.storage.local.set({ capturingState: { isCapturing: true } }, () => {
         toggleCaptureButtons(true);
@@ -64,7 +86,14 @@ document.addEventListener("DOMContentLoaded", function () {
   function toggleCaptureButtons(isCapturing) {
     startButton.disabled = isCapturing;
     stopButton.disabled = !isCapturing;
+    useServerCheckbox.disabled = isCapturing; 
     startButton.classList.toggle("disabled", isCapturing);
     stopButton.classList.toggle("disabled", !isCapturing);
   }
+
+  // Save the checkbox state when it's toggled
+  useServerCheckbox.addEventListener("change", () => {
+    const useServerState = useServerCheckbox.checked;
+    chrome.storage.local.set({ useServerState });
+  });
 });

@@ -101,3 +101,7 @@ label {
   width: 30px;
   text-align: center;
 }
+
+.checkbox-container {
+  padding: 10px; 
+}

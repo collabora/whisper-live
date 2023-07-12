@@ -4,6 +4,7 @@
     "version": "1.0",
     "description": "Transcribe audio from any webpage.",
     "permissions": [
+      "storage",
       "activeTab",
       "<all_urls>"
     ],

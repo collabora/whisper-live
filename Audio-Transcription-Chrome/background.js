@@ -129,7 +129,8 @@ async function getTab(tabId) {
  * @param {number} tabId - The ID of the tab to start capturing.
  * @returns {Promise<void>} - A Promise that resolves when the capture process is started successfully.
  */
-async function startCapture(tabId) {
+async function startCapture(options) {
+  const { tabId } = options;
   const optionTabId = await getLocalStorageValue("optionTabId");
   if (optionTabId) {
     await removeChromeTab(optionTabId);
@@ -149,7 +150,7 @@ async function startCapture(tabId) {
 
       await sendMessageToTab(optionTab.id, {
         type: "start_capture",
-        data: { currentTabId: currentTab.id },
+        data: { currentTabId: currentTab.id, host: options.host, port: options.port },
       });
     } else {
       console.log("No Audio");
@@ -184,7 +185,7 @@ async function stopCapture() {
  */
 chrome.runtime.onMessage.addListener((message) => {
   if (message.action === "startCapture") {
-    startCapture(message.tabId);
+    startCapture(message);
   } else if (message.action === "stopCapture") {
     stopCapture();
   }
